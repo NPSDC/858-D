@@ -147,10 +147,10 @@ class Rank(object):
 
         lk_ind = i-lk_bit+b_size
         if(lk_ind < b_vec.length()):
-            r_lk = lk[bv[(i-lk_bit):lk_ind].int_val()][lk_bit].int_val()
+            r_lk = lk[b_vec[(i-lk_bit):lk_ind].int_val()][lk_bit].int_val()
         else:
             not_allowed = lk_ind - b_vec.length()
-            bv_req = bv[(i-lk_bit):b_vec.length()] + self.empty_block(not_allowed)
+            bv_req = b_vec[(i-lk_bit):b_vec.length()] + self.empty_block(not_allowed)
             r_lk = lk[bv_req.int_val()][lk_bit].int_val()
         return(sbt[s].int_val() + bt[s][b].int_val() + r_lk)
         #return(sbt[s].int_val() + bt[b].int_val() + lk[self.b_vec[i-lk_bit]])
