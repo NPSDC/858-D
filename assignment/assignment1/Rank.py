@@ -162,10 +162,11 @@ class Rank(object):
         lk = self.get_lk_table()
         sbt = self.get_s_b_table()
         bt = self.get_b_table()
+        bv = self.get_bit_vector()
 
         s_b_bits = len(sbt)*sbt[0].length()
         bt_bits = len(bt)*len(bt[0])*bt[0][0].length()
         lk_bits = len(lk)*len(lk[0])*lk[0][0].length()
-        return(s_b_bits + bt_bits + lk_bits)
+        return(s_b_bits + bt_bits + lk_bits + bv.get_length())
             
     
