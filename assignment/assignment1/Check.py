@@ -35,8 +35,9 @@ class Check(object):
 			rank_arr.append(Rank(bv))
 			bv = bv.gen_random_bits(int(curr + prev))
 			rank_arr.append(Rank(bv))
+			print(bits)
 			#print(rank_arr[-1].get_bit_vector().length())
-			print(len(rank_arr))
+#			print(len(rank_arr))
 			prev = curr
 			count += 2
 			if(bits < 20):
@@ -44,7 +45,7 @@ class Check(object):
 					with open(save_file, "wb") as f_write:
 						Pi.dump(rank_arr, f_write)
 				if(bits == (max_bits)):
-					print(max_bits)
+#					print(max_bits)
 					with open(save_file, "wb") as f_write:
 						Pi.dump(rank_arr, f_write)
 			else:
@@ -54,7 +55,7 @@ class Check(object):
 		return rank_arr
 
 def main():
-	ob = Check(3, 12, "temp.pickle")
+	ob = Check(3, 24, "rank.pickle")
 	ob.create_rb()
 
 if __name__ == '__main__':
