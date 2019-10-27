@@ -71,7 +71,7 @@ class Check(object):
 	def create_sel_list(self):
 		r_ob_list = self.get_r_ob_list()
 		sel_arr = [0]*len(r_ob_list)
-		for i in xrange(r_ob_list):
+		for i in range(len(r_ob_list)):
 			sel_arr[i] = Select(r_ob_list[i])
 		return sel_arr
 
@@ -111,7 +111,7 @@ class Check(object):
 	def create_plots(self, queries):
 		t_r_list = self.perform_queries_rank(queries)
 		r_ob_list = self.get_r_ob_list()
-		sel_ob_list = sle
+		sel_ob_list = self.get_sel_ob_list()
 
 		lengths = [r_ob.get_bit_vector().length() for r_ob in r_ob_list]
 		plt.scatter(lengths, t_r_list, c = 'r')
@@ -128,7 +128,7 @@ class Check(object):
 		plt.show()
 
 def main():
-	ob = Check(3, 24, "rank.pickle")
+	ob = Check(25, 30, "rank_25_30.pickle")
 
 if __name__ == '__main__':
 	main()
