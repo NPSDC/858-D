@@ -38,8 +38,9 @@ class Rank(object):
     
     def get_length(self):
         return self.length
-        
-    def add_num(self, b_vec, num = 1, to_int = False):
+    
+    @classmethod    
+    def add_num(cls, b_vec, num = 1, to_int = False):
         l = b_vec.length()
         zero_bv = BV.BitVector(bitstring = '0')
         for n in range(num):
@@ -76,9 +77,9 @@ class Rank(object):
             for j in range(b_size):
                 inn_block[i].append(self.empty_block(b_bits))
                 if(j != 0):
-                    self.add_num(inn_block[i][j], num = inn_block[i][j-1].int_val() + vals[i][j])
+                    Rank.add_num(inn_block[i][j], num = inn_block[i][j-1].int_val() + vals[i][j])
                 else:
-                    self.add_num(inn_block[i][j], num = vals[i][j])
+                    Rank.add_num(inn_block[i][j], num = vals[i][j])
                 
         return(inn_block)
         
@@ -116,7 +117,7 @@ class Rank(object):
             if(i%s_b_size == 0):
                 s_b_list.append(self.empty_block(s_b_bits))
                 s_b_list[s + 1] = s_b_list[s][:]
-                self.add_num(s_b_list[s + 1], b_list[s][b].int_val() + 
+                Rank.add_num(s_b_list[s + 1], b_list[s][b].int_val() + 
                                          lup_tab[b_vec[(i-b_size):i].int_val()][b_size-1].int_val())
                 s += 1
                 b = 0
@@ -126,7 +127,7 @@ class Rank(object):
             elif(i%b_size == 0):
                 b_list[s].append(self.empty_block(b_bits))
                 b_list[s][b+1] = b_list[s][b][:]
-                self.add_num(b_list[s][b+1], lup_tab[b_vec[(i-b_size):i].int_val()][b_size-1].int_val())
+                Rank.add_num(b_list[s][b+1], lup_tab[b_vec[(i-b_size):i].int_val()][b_size-1].int_val())
                # print(b_list[s][b+1].int_val(), lup_tab[b_vec[(i-b_size):i].int_val()][b_size-1].int_val())
                 b = b + 1
             

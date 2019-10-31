@@ -110,10 +110,12 @@ class Check(object):
 
 	def create_plots(self, queries):
 		t_r_list = self.perform_queries_rank(queries)
+		s_r_list = self.perform_queries_select(queries)
 		r_ob_list = self.get_r_ob_list()
 		sel_ob_list = self.get_sel_ob_list()
 
 		lengths = [r_ob.get_bit_vector().length() for r_ob in r_ob_list]
+
 		plt.scatter(lengths, t_r_list, c = 'r')
 		plt.plot(lengths, t_r_list)#, lengths, t_r_list, "-bl")
 		plt.xlabel("Length of bit string")
@@ -125,6 +127,12 @@ class Check(object):
 		plt.plot(lengths, overhead)#, lengths, overhead, "bl")
 		plt.xlabel("Length of bit string")
 		plt.ylabel("Overhead in bits")
+		plt.show()
+
+		plt.scatter(lengths, s_r_list, c = 'r')
+		plt.plot(lengths, s_r_list)#, lengths, t_r_list, "-bl")
+		plt.xlabel("Length of bit string")
+		plt.ylabel("Time in seconds")
 		plt.show()
 
 def main():
