@@ -78,10 +78,11 @@ def create_alternate(length):
 
 def main():
 	T = "0167154263"
-	T = gen_rand_string(10,1000)
-	T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
+	T = gen_rand_string(7,20)
+	T = 'uqzhtgvjepblbgljjzpzeqqzbtbvbvllhgjeblegqeqqllhtez'
+	#T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
 	#print(len(T))
-	#print(T)
+	print(T)
 	#print(set(T))
 
 	#T = "alabar_a_la_alabarda"
@@ -117,7 +118,7 @@ def main():
 			hist[key] = 1
 		bv_list[0][i] = T_sub[key][0]
 
-	#print(len(hist))
+	#print(hist)
 	#print(T_sub)
 	#print(list(map(str, S_pos)))
 	#print(str(bv_list[0]))
@@ -193,7 +194,8 @@ def main():
 	#print(len(bv_list))
 	#print(bits_alpha-2)
 	#print(len(int_alp_dict.keys()))
-	
+	#print(str(bv_list[0]))
+
 	print(print_wavelet(bv_list, S_pos_list[levels-2], int_alp_dict))
 
 if __name__ == '__main__':
