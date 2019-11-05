@@ -18,8 +18,8 @@ class Wavelet(object):
 		self.pos_vec_list = self.create_pos_vec_list()
 		self.gen_wavelet()
 		self.wavelet = self.print_wavelet()
-		self.rank = self.gen_rank()
-		self.select = self.gen_select()
+		self.rank_list = self.gen_rank_list()
+		self.select_list = self.gen_select_list()
 
 		#self.T_bit
 
@@ -50,11 +50,11 @@ class Wavelet(object):
 	def get_wavelet(self):
 		return self.wavelet
 
-	def get_rank(self):
-		return self.rank
+	def get_rank_list(self):
+		return self.rank_list
 
-	def get_select(self):
-		return self.select
+	def get_select_list(self):
+		return self.select_list
 
 	def get_select(self):
 		return self.select
@@ -178,14 +178,14 @@ class Wavelet(object):
 				hist[key] = 1
 		return(hist)
 
-	def gen_rank(self):
+	def gen_rank_list(self):
 		bv_list = self.get_bv_list()
 		rank_list = list()
 		for i in range(len(bv_list)):
 			rank_list.append(Rank(bv_list[i]))
 		return rank_list
 
-	def gen_select(self):
+	def gen_select_list(self):
 		bv_list = self.get_bv_list()
 		select_list = list()
 		for i in range(len(bv_list)):
@@ -194,13 +194,16 @@ class Wavelet(object):
 
 	def access(self, ind):
 		bv_list = self.get_bv_list()
-		rank_list = self.get_rank()
+		rank_list = self.get_rank_list()
 		pos_list = self.get_pos_vec_list()
 		alpha_map = self.get_alpha_map()
 
 		pos_it = 0
 		r = 0
 		sub_ind = 0
+		if(ind >= len(bv_list[0])):
+			print('Index exceeds or equals String length')
+			return -1
 		#pos_ind = 0
 		for l in range(self.get_levels()):
 			if(pos_it != 0):
@@ -230,6 +233,52 @@ class Wavelet(object):
 		#return req_ind
 		return(list(alpha_map.keys())[list(alpha_map.values()).index(pos_it)])
 
+	def rank(self, char, ind):
+		bv_list = self.get_bv_list()
+		rank_list = self.get_rank_list()
+		pos_list = self.get_pos_vec_list()
+		alpha_map = self.get_alpha_map()
+		num_check = alpha_map[char]
+		T_sub = self.get_alpha_bit_rep()
+
+		pos_it = 0
+		r = 0
+		sub_ind = 0
+		#pos_ind = 0
+		for l in range(self.get_levels()):
+			if(pos_it != 0):
+				sub_ind = pos_list[l][pos_it-1].int_val()
+			#	print(sub_ind, "sub")
+			req_ind = sub_ind + r - 1
+			if(l == 0):
+				req_ind = ind
+			val = T_sub[num_check][l]
+			#print(sub_ind, "sub")
+			#print(val, "val")
+			#print(req_ind, l, "req_ind")
+			if(val == 1):
+				if l == 0 or sub_ind == 0:
+					r = rank_list[l].rank1(req_ind)
+				else:
+					r = rank_list[l].rank1(req_ind) - rank_list[l].rank1(sub_ind - 1)
+				pos_it = pos_it*2 + 1
+					
+			else:
+				if l == 0 or sub_ind == 0:
+					r = rank_list[l].rank0(req_ind)
+					#print(str(bv_list[l][0:9]))
+					if(r == 0):
+						return r
+					#print(r, 'rank')
+				else:
+					r = rank_list[l].rank0(req_ind) - rank_list[l].rank0(sub_ind - 1)
+				pos_it = pos_it*2
+			#print(r, 'rank')
+			#print(pos_it)
+		#return req_ind
+		return(r)
+		#return(list(alpha_map.keys())[list(alpha_map.values()).index(pos_it)])
+
 
 	@staticmethod
 	def get_prefix(bv, l):
@@ -255,23 +304,38 @@ def gen_rand_string(num_char, str_len):
 	final_str = ''.join([letters[i] for i in s_inds])
 	return final_str
 
+def checker_str(T):
+	count_dict = list()
+	keys = list(set(T))
+	for i in range(len(T)):
+		if(i == 0):
+			count_dict.append(dict())
+			for k in keys:
+				count_dict[i][k] = 0
+			count_dict[i][T[i]] = 1
+		else:
+			count_dict.append(count_dict[i-1].copy())
+			count_dict[i][T[i]] += 1
+	return count_dict
+
 def main():
-	T = gen_rand_string(5,10)
-#	T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
-#	T = "0167154263"
-	T = "fbqykjnzpcvhmiurdxsexukqrczmyzicirpsmizyrjnrmkrbnkdyvxkhyemucfkzszxxfihuvxjzqbivpzvfivzjrvesdckvixmk"
-	#T = "kauhbkuahhbkubabaaak"
-#	T = "ncziycizzn"
+	T = gen_rand_string(17,100)
+	#T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
+	#T = "0167154263"
+#	T = "fbqykjnzpcvhmiurdxsexukqrczmyzicirpsmizyrjnrmkrbnkdyvxkhyemucfkzszxxfihuvxjzqbivpzvfivzjrvesdckvixmk"
+#	T = "kauhbkuahhbkubabaaak"
+	#T = "ncziycizzn"
+	T  ="xizwtraqopmhcjdvyipdzyctovjmacrixzaopizvywymviczajwdqxoohhcrvohzipdcxxatphhzxmhtzovqdjrvjmtdrhmydrjy"
 	ob = Wavelet(T)
 	print(T)
-	print(ob.print_wavelet())
+	#print(ob.print_wavelet())
 	#print(ob.get_wavelet())
 	#print(ob.get_hist())
 	# for bv in ob.get_pos_vec_list():
 	# 	print(list(map(str,bv)))
 	vals = list(map(ob.access, range(len(T))))
 	print(vals)
-	print(ob.access(1))
+	print(ob.access(100))
 	for i in range(len(vals)):
 		if(vals[i] != T[i]):
 			print('Thats it')
@@ -279,7 +343,16 @@ def main():
 	#print(T[1])
 	#print(T[19])
 	#print(T[19])
-	#print(ob.access(10))
+	ch = checker_str(T)
+	#print(ch)
+	# for i in range(len(ch)):
+	# 	for k in ch[i].keys():
+	# 		#print(k)
+	# 		if(ch[i][k] != ob.rank(k, i)):
+	# 			print('ssh')
+	# #print(ob.access(0))
+	# print(T[0:30])
+	# print(ob.rank('m',30))
 	#print(list(map(str,ob.get_alpha_bit_rep())))
 	#ob.gen_wavelet()
 	#print(list(map(str, ob.get_pos_vec_list())))
