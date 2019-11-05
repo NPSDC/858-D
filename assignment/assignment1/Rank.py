@@ -157,7 +157,7 @@ class Rank(object):
         #return(sbt[s].int_val() + bt[b].int_val() + lk[self.b_vec[i-lk_bit]])
     
     def rank0(self, i):
-        return i - self.rank1(i)
+        return i + 1 - self.rank1(i)
     
     def overhead(self):
         lk = self.get_lk_table()

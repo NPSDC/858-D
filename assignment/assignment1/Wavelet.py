@@ -14,6 +14,7 @@ class Wavelet(object):
 		self.create_substr(BV.BitVector(size = self.get_levels()), 0, self.get_levels(), self.get_alpha_bit_rep())
 		self.bv_list = self.gen_bv()
 		self.hist = self.gen_hist()
+		#print(self.hist)
 		self.pos_vec_list = self.create_pos_vec_list()
 		self.gen_wavelet()
 		self.wavelet = self.print_wavelet()
@@ -195,25 +196,39 @@ class Wavelet(object):
 		bv_list = self.get_bv_list()
 		rank_list = self.get_rank()
 		pos_list = self.get_pos_vec_list()
-		pos = 0
+		alpha_map = self.get_alpha_map()
+
+		pos_it = 0
 		r = 0
 		sub_ind = 0
+		#pos_ind = 0
 		for l in range(self.get_levels()):
-			if(pos != 0):
-				sub_ind = pos_list[l][pos-1].int_val() 
-				print(sub_ind, "sub")
-				ind = sub_ind + r - 1
-			val = bv_list[l][ind]
-
+			if(pos_it != 0):
+				sub_ind = pos_list[l][pos_it-1].int_val()
+			#	print(sub_ind, "sub")
+			req_ind = sub_ind + r - 1
+			if(l == 0):
+				req_ind = ind
+			val = bv_list[l][req_ind]
+			#print(val, "val")
+			#print(req_ind, l, "req_ind")
 			if(val == 1):
-				r = rank_list[l].rank1(ind) - rank_list[l].rank1(sub_ind)
-				print(r, 'rank')
-				pos = pos*2 + 1
+				if l == 0 or sub_ind == 0:
+					r = rank_list[l].rank1(req_ind)
+				else:
+					r = rank_list[l].rank1(req_ind) - rank_list[l].rank1(sub_ind - 1)
+				pos_it = pos_it*2 + 1
+					
 			else:
-				r = rank_list[l].rank0(ind) - rank_list[l].rank1(sub_ind)
-				pos = pos*2
-			print(ind, "ind")
-		print(ind)
+				if l == 0 or sub_ind == 0:
+					r = rank_list[l].rank0(req_ind)
+				else:
+					r = rank_list[l].rank0(req_ind) - rank_list[l].rank0(sub_ind - 1)
+				pos_it = pos_it*2
+			#print(r, 'rank')
+			#print(pos_it)
+		#return req_ind
+		return(list(alpha_map.keys())[list(alpha_map.values()).index(pos_it)])
 
 
 	@staticmethod
@@ -241,15 +256,31 @@ def gen_rand_string(num_char, str_len):
 	return final_str
 
 def main():
-	T = gen_rand_string(7,10)
-	T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
-	T = "0167154263"
-	print(T)
+	T = gen_rand_string(5,10)
+#	T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
+#	T = "0167154263"
+	T = "fbqykjnzpcvhmiurdxsexukqrczmyzicirpsmizyrjnrmkrbnkdyvxkhyemucfkzszxxfihuvxjzqbivpzvfivzjrvesdckvixmk"
+	#T = "kauhbkuahhbkubabaaak"
+#	T = "ncziycizzn"
 	ob = Wavelet(T)
-	print(ob.get_wavelet())
-	for bv in ob.get_pos_vec_list():
-		print(list(map(str,bv)))
-	ob.access(2)
+	print(T)
+	print(ob.print_wavelet())
+	#print(ob.get_wavelet())
+	#print(ob.get_hist())
+	# for bv in ob.get_pos_vec_list():
+	# 	print(list(map(str,bv)))
+	vals = list(map(ob.access, range(len(T))))
+	print(vals)
+	print(ob.access(1))
+	for i in range(len(vals)):
+		if(vals[i] != T[i]):
+			print('Thats it')
+	#print(ob.get_alpha_map())
+	#print(T[1])
+	#print(T[19])
+	#print(T[19])
+	#print(ob.access(10))
+	#print(list(map(str,ob.get_alpha_bit_rep())))
 	#ob.gen_wavelet()
 	#print(list(map(str, ob.get_pos_vec_list())))
 	#print(ob.get_hist())
