@@ -1,0 +1,19 @@
+Note - Due to constraints of time, no error handling has been implemented. It means that any instructions not specified in the assignment writeup, no mechansim for checking them exists and may thus produce unexpected outputs.
+
+The code has been written in Python3
+
+Directory Structure - 
+ Rank - Rank.py contains Rank class and creates 
+Following libraries in python3 are used apart from standard Python modules
+	- _pickle
+	- string
+	- numpy
+	- BitVector
+The above libraries need to be downloaded before the commands can be executed
+
+To execute the program user should be in the main assignment1 directory and accordindly call the functions
+
+A script file named run_wt.sh contains the following command and needs to be executed
+alias wt='python3 main.py', so as to facilitate proper execution
+
+The output file for build contains dumped pickle object for the Wavelet tree structure
