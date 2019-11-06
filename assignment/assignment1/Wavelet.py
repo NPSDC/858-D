@@ -1,9 +1,20 @@
+from __future__ import print_function
+from sys import getsizeof, stderr
+from itertools import chain
+from collections import deque
+try:
+    from reprlib import repr
+except ImportError:
+    pass
+
 import sys
 import BitVector as BV
 import math
 import string
 import numpy as np
 from Rank import Rank
+from Select import Select
+
 
 class Wavelet(object):
 	def __init__(self, seq):
@@ -56,8 +67,6 @@ class Wavelet(object):
 	def get_select_list(self):
 		return self.select_list
 
-	def get_select(self):
-		return self.select
 
 	def hash_seq(self):
 		alphabet = sorted(list(set(self.get_seq())))
@@ -185,11 +194,12 @@ class Wavelet(object):
 			rank_list.append(Rank(bv_list[i]))
 		return rank_list
 
+
 	def gen_select_list(self):
-		bv_list = self.get_bv_list()
+		rank_list = self.get_rank_list()
 		select_list = list()
-		for i in range(len(bv_list)):
-			select_list.append(Rank(bv_list[i]))
+		for i in range(len(rank_list)):
+			select_list.append(Select(rank_list[i]))
 		return select_list
 
 	def access(self, ind):
@@ -279,6 +289,53 @@ class Wavelet(object):
 		return(r)
 		#return(list(alpha_map.keys())[list(alpha_map.values()).index(pos_it)])
 
+	def select(self, char, ind):
+		bv_list = self.get_bv_list()
+		rank_list = self.get_rank_list()
+		select_list = self.get_select_list()
+		pos_list = self.get_pos_vec_list()
+		alpha_map = self.get_alpha_map()
+		num_check = alpha_map[char]
+		T_sub = self.get_alpha_bit_rep()
+
+		for l in reversed(range(self.get_levels())):
+			pos_char = Wavelet.get_prefix(T_sub[num_check], l)
+			#print(pos_char, "pos_char")
+			value = T_sub[num_check][l]
+			#print(value, "val")
+			if(l == 0):
+				if(value == 0):
+					return select_list[l].select0(ind)
+				else:
+					return select_list[l].select1(ind)
+			
+			if(pos_char == 0):
+				pos_val = -1
+			else:
+				pos_val = pos_list[l][pos_char -1].int_val() - 1
+			#print(pos_val, "pos_val")
+			if(value == 0):
+				if pos_val == -1:
+					add_val = 0
+				else:
+					add_val = rank_list[l].rank0(pos_val)
+			#	print(add_val, "add_val")
+				req_val_sel = add_val + ind
+			#	print(req_val_sel, "req_val")
+				#print(select_list[l].select0(req_val_sel))
+				#print(str(bv_list[l][0:req_val_sel+3]))
+				ind = select_list[l].select0(req_val_sel) - pos_val
+			else:
+				if pos_val == -1:
+					add_val = 0
+				else:
+					add_val = rank_list[l].rank1(pos_val)
+				#print(add_val, "add_val")
+				req_val_sel = add_val + ind
+				#print(req_val_sel, "req_val")
+				ind = select_list[l].select1(req_val_sel) - pos_val
+			#print(ind, "ind")
+			#print(pos_char)
 
 	@staticmethod
 	def get_prefix(bv, l):
@@ -318,32 +375,88 @@ def checker_str(T):
 			count_dict[i][T[i]] += 1
 	return count_dict
 
+def total_size(o, handlers={}, verbose=False):
+    """ Returns the approximate memory footprint an object and all of its contents.
+
+    Automatically finds the contents of the following builtin containers and
+    their subclasses:  tuple, list, deque, dict, set and frozenset.
+    To search other containers, add handlers to iterate over their contents:
+
+        handlers = {SomeContainerClass: iter,
+                    OtherContainerClass: OtherContainerClass.get_elements}
+
+    """
+    dict_handler = lambda d: chain.from_iterable(d.items())
+    all_handlers = {tuple: iter,
+                    list: iter,
+                    deque: iter,
+                    dict: dict_handler,
+                    set: iter,
+                    frozenset: iter,
+                   }
+    all_handlers.update(handlers)     # user handlers take precedence
+    seen = set()                      # track which object id's have already been seen
+    default_size = getsizeof(0)       # estimate sizeof object without __sizeof__
+
+    def sizeof(o):
+        if id(o) in seen:       # do not double count the same object
+            return 0
+        seen.add(id(o))
+        s = getsizeof(o, default_size)
+
+        if verbose:
+            print(s, type(o), repr(o), file=stderr)
+
+        for typ, handler in all_handlers.items():
+            if isinstance(o, typ):
+                s += sum(map(sizeof, handler(o)))
+                break
+        return s
+
+    return sizeof(o)
+
+def check_select(T):
+ 	check_dict = dict()
+ 	for i in range(len(T)):
+ 		if T[i] not in check_dict.keys():
+ 			check_dict[T[i]] = []
+ 		check_dict[T[i]].append(i)
+ 	return check_dict
+
 def main():
-	T = gen_rand_string(17,100)
+	T = gen_rand_string(5,100)
 	#T = "xbqcgmmbmxxnqwcxwcmxmxwbmnmhqh"
-	#T = "0167154263"
+	T = "0167154263"
 #	T = "fbqykjnzpcvhmiurdxsexukqrczmyzicirpsmizyrjnrmkrbnkdyvxkhyemucfkzszxxfihuvxjzqbivpzvfivzjrvesdckvixmk"
-#	T = "kauhbkuahhbkubabaaak"
+	#T = "kauhbkuahhbkubabaaak"
 	#T = "ncziycizzn"
-	T  ="xizwtraqopmhcjdvyipdzyctovjmacrixzaopizvywymviczajwdqxoohhcrvohzipdcxxatphhzxmhtzovqdjrvjmtdrhmydrjy"
+	#T  ="xizwtraqopmhcjdvyipdzyctovjmacrixzaopizvywymviczajwdqxoohhcrvohzipdcxxatphhzxmhtzovqdjrvjmtdrhmydrjy"
 	ob = Wavelet(T)
 	print(T)
 	#print(ob.print_wavelet())
 	#print(ob.get_wavelet())
 	#print(ob.get_hist())
-	# for bv in ob.get_pos_vec_list():
-	# 	print(list(map(str,bv)))
-	vals = list(map(ob.access, range(len(T))))
-	print(vals)
-	print(ob.access(100))
-	for i in range(len(vals)):
-		if(vals[i] != T[i]):
-			print('Thats it')
+	for bv in ob.get_pos_vec_list():
+		print(list(map(str,bv)))
+
+	# vals = list(map(ob.access, range(len(T))))
+	# print(vals)
+	# print(ob.access(100))
+	# for i in range(len(vals)):
+	# 	if(vals[i] != T[i]):
+	# 		print('Thats it')
 	#print(ob.get_alpha_map())
 	#print(T[1])
 	#print(T[19])
 	#print(T[19])
 	ch = checker_str(T)
+	#print(ob.select("n",2))
+	sel_dict = check_select(T)
+	for t in sel_dict.keys():
+		for i in range(len(sel_dict[t])):
+			if(ob.select(t, i+1) != sel_dict[t][i]):
+				print("yo")
+
 	#print(ch)
 	# for i in range(len(ch)):
 	# 	for k in ch[i].keys():
@@ -360,3 +473,5 @@ def main():
 
 if __name__ == "__main__":
 	ob = main()
+
+
