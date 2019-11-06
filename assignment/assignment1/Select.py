@@ -16,16 +16,42 @@ class Select(object):
         start = 0
         end = r_ob.get_length() - 1
         
-        if(i > self.get_max_rank()):
-                return -1
+       # if(i > self.get_max_rank()):
+        #        return -1
 
         while start <= end:
             mid = (start + end)//2
             if(i == r_ob.rank1(mid)):
-                return(mid)
+                for ind in range(start, mid+1):
+                    if(i == r_ob.rank1(ind)):
+                        return ind
+                
+    #
             if(i > r_ob.rank1(mid)):
                 start = mid + 1
             if(i < r_ob.rank1(mid)):
+               end = mid - 1            
+           # break
+        return -1
+
+    def select0(self, i):
+        r_ob = self.get_rank_ob()
+        start = 0
+        end = r_ob.get_length() - 1
+        
+       # if(i > self.get_max_rank()):
+        #        return -1
+
+        while start <= end:
+            mid = (start + end)//2
+            if(i == r_ob.rank0(mid)):
+                for ind in range(start, mid+1):
+                    if(i == r_ob.rank0(ind)):
+                        return ind
+#                return(mid)
+            if(i > r_ob.rank0(mid)):
+                start = mid + 1
+            if(i < r_ob.rank0(mid)):
                end = mid - 1            
            # break
         return -1
