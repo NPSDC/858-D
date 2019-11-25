@@ -2,7 +2,6 @@ import mmh3
 from bitarray import bitarray
 import math
 import os
-import string
 import numpy as np
 import argparse as ag
 import _pickle as Pi
@@ -87,47 +86,6 @@ class BloomFilter(object):
 						print("{}:Y".format(q))
 					else:
 						print(repr("{}:N".format(q)))
-
-def create_rand_keys(num_keys, max_key_size = 100, check_keys = [], file_write = None, ret = False):
-	letters = string.printable
-	keys = ['aaaaaaaa']*num_keys
-	
-	for num in range(num_keys):
-		while(1):
-			key_size = np.random.randint(5, max_key_size + 1)
-			rand_numbers = np.random.choice(len(letters), key_size, replace = False)
-			key = repr(''.join([letters[i] for i in rand_numbers]))
-			if not key in check_keys:
-				break
-		keys[num] = key
-
-	if(file_write is not None):
-		ret = False
-		with open(file_write, 'w') as f:
-			for num in range(num_keys):
-				if(num < (num_keys - 1)):
-					f.write(keys[num] + "\n")
-				else:
-					f.write(keys[num])
-
-	if(ret):
-		return keys
-
-def create_test_query(key_file, type):
-	if(os.path.exists(key_file)):
-		if not type in [1,2]:
-			sys.exit("Invalid type")
-		keys = []
-		with open(key_file, 'r') as f:
-			for key in f.readlines():
-				keys.append(key.strip('\n'))
-
-		if(type == 1):
-			create_rand_keys(num_keys = len(keys), max_key_size = 100, check_keys = keys, file_write = key_file.split('.')[0] + "_nocomm.txt")		
-		else:
-			create_rand_keys(num_keys = len(keys)//2, max_key_size = 100, \
-				check_keys = [keys[i] for i in list(np.random.randint(0, len(keys), len(keys)//2))], \
-			 	file_write = key_file.split('.')[0] + "_50comm.txt")
 
 
 def main():
