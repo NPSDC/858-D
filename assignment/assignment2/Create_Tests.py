@@ -4,6 +4,7 @@ import string
 import numpy as np
 import _pickle as Pi
 from BloomFilter import BloomFilter as BF
+from BlockedBloomFilter import BlockedBloomFilter as BBF
 import time
 
 class CreateTests(object):
@@ -71,17 +72,29 @@ class CreateTests(object):
 			sys.exit("Invalid directory Path")
 
 	@staticmethod
-	def create_BF(fpr_list, n_keys_list, dir):
+	def create_BF(fpr_list, n_keys_list, dir, BF_type):
 		bf_list = list()
 		for i in range(len(fpr_list)):
 			bf_list.append(list())
 			for j in range(len(n_keys_list)):
-				bf = BF(fpr_list[i], n_keys_list[j])
+				bf = BF_type(fpr_list[i], n_keys_list[j])
 				f_name = os.path.join(dir, "{}.txt".format(n_keys_list[j]))
 				bf.insert(f_name)
 				bf_list[i].append(bf)
-		with open(os.path.join(dir, "pi_list.pickle"), "wb") as f_write:
-			Pi.dump(bf_list, f_write)
+
+		try:
+			module_name = BF_type.__module__
+		except Exception:
+			sys.exit("Class Name expected")
+
+		if module_name == 'BlockedBloomFilter':
+			with open(os.path.join(dir, "bbf_list.pickle"), "wb") as f_write:
+				Pi.dump(bf_list, f_write)
+		elif module_name == 'BloomFilter':
+			with open(os.path.join(dir, "bf_list.pickle"), "wb") as f_write:
+				Pi.dump(bf_list, f_write)
+		else:
+			sys.exit("Invalid class name")
 		return(bf_list)
 
 	@staticmethod
@@ -144,9 +157,9 @@ def main():
 	nkeys_list.extend(list(range(int(1e5), int(1e6), 50000)))
 	nkeys_list.extend(list(range(int(1e6), int(1e7), 500000)))
 	fpr_list = np.array(range(1,26))/100
-	nkeys_list = nkeys_list[10:20]
+	#nkeys_list = nkeys_list[10:20]
 	CreateTests.gen_files(nkeys_list, 'test2')
-	#bf_list = CreateTests.create_BF(fpr_list, [1000,2000], 'test')
+	bf_list = CreateTests.create_BF(fpr_list, [1000,2000], 'test')
 	#q_time = CreateTests.find_query_time(bf_list, fpr_list, [1000,2000], '_nocomm', 'test')
 	#q_time = CreateTests.find_query_time(bf_list, fpr_list, [1000,2000], '_nocomm', 'test')
 

@@ -55,7 +55,7 @@ class BloomFilter(object):
 		ba = self.get_ba()
 		m  = self.get_m()
 		for i in range(k):
-			val = mmh3.hash(key, i) % m
+			val = mmh3.hash(key.strip(), i) % m
 			ba[val] = True
 
 
@@ -81,11 +81,11 @@ class BloomFilter(object):
 		if(os.path.exists(file)):
 			with open(file, 'r') as f:
 				for q in f.readlines():
-					val = self.query(q)
+					val = self.query(q.strip())
 					if(val):
 						print("{}:Y".format(q.strip()))
 					else:
-						print(repr("{}:N".format(q.strip())))
+						print("{}:N".format(q.strip()))
 
 
 def main():
