@@ -63,7 +63,7 @@ class BloomFilter(object):
 		if(os.path.exists(file)):
 			with open(file, 'r') as f:
 				for key in f.readlines():
-					self.add(key)
+					self.add(key.strip())
 		else:
 			sys.exit("File does not exist")
 
@@ -72,7 +72,7 @@ class BloomFilter(object):
 		ba = self.get_ba()
 		m = self.get_m()
 		for i in range(k):
-			val = mmh3.hash(key, i) % m
+			val = mmh3.hash(key.strip(), i) % m
 			if(not ba[val]):
 				return False
 		return True
@@ -83,9 +83,9 @@ class BloomFilter(object):
 				for q in f.readlines():
 					val = self.query(q)
 					if(val):
-						print("{}:Y".format(q))
+						print("{}:Y".format(q.strip()))
 					else:
-						print(repr("{}:N".format(q)))
+						print(repr("{}:N".format(q.strip())))
 
 
 def main():
