@@ -61,19 +61,45 @@ class BlockedBloomFilter( BloomFilter ):
 		return True
 
 def main():
-	bbf = BlockedBloomFilter(0.01, 10)
-	bbf.add('1')
-	print(bbf.query('1'))
-	print(bbf.query('2'))
-	print(bbf.query('3'))
-	print(bbf.query('100'))
-	bbf.add('2')
-	bbf.add('3')
-	bbf.add('100')
-	print(bbf.query('1'))
-	print(bbf.query('2'))
-	print(bbf.query('3'))
-	print(bbf.query('100'))
+	parser = ag.ArgumentParser()
+	parser_build = ag.ArgumentParser(add_help = False)
+	parser_query = ag.ArgumentParser(add_help = False)
+	#subparsers = parser.add_subparsers()
+
+	#parser_build.add_argument('command', type = str, default = 'build')
+	parser_build.add_argument('-k', type = str, help = "Key File", required = True, dest = 'k')
+	parser_build.add_argument('-f', type = float, help = "FPR", required = True, dest = 'f')
+	parser_build.add_argument('-n', type = int, help = "Number of distinct keys", required = True)
+	parser_build.add_argument('-o', type = str, help = "Output file to store input", required = True)
+
+	parser_query.add_argument('-i', type = str, help = "Input file containing bloomFilter array", required = True)
+	parser_query.add_argument('-q', type = str, help = "Input file containing queries", required = True)
+
+	subparsers = parser.add_subparsers()
+	subparser_build = subparsers.add_parser("build", parents = [parser_build])
+	subparser_build.set_defaults(which="build")
+	subparser_query = subparsers.add_parser("query", parents = [parser_query])
+	subparser_query.set_defaults(which="query")
+
+
+	args = parser.parse_args()
+	#print(parser_build)
+	
+	
+	if(args.which == 'build'):
+		#args = parser.parse_args()
+		BF = BloomFilter(args.f, args.n)
+		BF.insert(args.k)
+		with open(args.o, "wb") as f:
+			Pi.dump(BF, f)
+
+	elif(args.which == 'query'):
+		if(os.path.exists(args.i)):
+			with open(args.i, "rb") as f:
+				BF = Pi.load(f)
+				BF.query_file(args.q)
+		else:
+			sys.exit("Input file does not exists")
 
 if __name__ == '__main__':
 	main()

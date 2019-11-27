@@ -6,6 +6,9 @@ import _pickle as Pi
 from BloomFilter import BloomFilter as BF
 from BlockedBloomFilter import BlockedBloomFilter as BBF
 import time
+import matplotlib.pyplot as plt
+import seaborn as sb
+import pandas as pd
 
 class CreateTests(object):
 	@staticmethod
@@ -131,12 +134,15 @@ class CreateTests(object):
 						n_pos += 1
 			if(fpr_ded):
 				n_pos -= bf.get_n()/2 
-			val = n_pos/bf.get_n()
+				val = n_pos*2/bf.get_n()
+			else:
+				val = n_pos/bf.get_n()
 			return val
 
 		else:
 			sys.exit("{} does not exists".format(q_file))
 
+	@staticmethod
 	def compute_fpr_list(bf_list, fpr_list, n_keys_list, dir, fpr_ded):
 		emp_fpr_list = list()
 		for i in range(len(fpr_list)):
@@ -149,8 +155,40 @@ class CreateTests(object):
 					file = os.path.join(dir, str(n_keys_list[j]) + "_nocomm" + ".txt")
 				if(not os.path.exists(file)):
 					sys.exit("{} file does not exists".format(file))
-				emp_fpr_list[i][j] = compute_emp_fpr(bf_list[i][j], file, fpr_ded)
+				emp_fpr_list[i][j] = CreateTests.compute_emp_fpr(bf_list[i][j], file, fpr_ded)
 		return emp_fpr_list
+
+	@staticmethod
+	def plot_query(fpr_pos, nkeys_list, names, *qlist, type, title):
+
+		if not len(names) == len(qlist):
+			sys.exit("Lengths not same")
+		if not type in ["query", "FPR"]:
+			sys.exit("Invalid type")
+		ax = plt.subplot(111)
+		for i in range(len(qlist)):
+			if(type == 'query'):
+				ax.plot(nkeys_list, np.array(qlist[i][fpr_pos])*1e6, label = names[i])
+			else:
+				ax.plot(nkeys_list, np.array(qlist[i][fpr_pos]), label = names[i])
+		ax.set_title(title, fontsize = 12, fontweight = 'bold')
+		ax.set_xlabel("Key Size", fontsize = 12)
+		if(type == 'query'):
+			ax.set_ylabel("Time in microseconds", fontsize = 12)
+		else:
+			ax.set_ylabel("FPR", fontsize = 12)
+		ax.legend()
+		plt.show()
+
+	@staticmethod
+	def create_heatmap(fpr_comp_list, fpr_list, n_keys_list, title):
+		df = pd.DataFrame(fpr_comp_list, columns = n_keys_list, index = fpr_list)
+		ax = plt.axes()
+		sb.heatmap(df, ax = ax)
+		ax.set_title(title, fontsize = 12, fontweight = 'bold')
+		ax.set_xlabel("Key Size", fontsize = 12)
+		ax.set_ylabel("FPR", fontsize = 12)
+		plt.show()
 
 def main():
 	nkeys_list = list(range(1000, int(1e5), 5000))

@@ -1,0 +1,15 @@
+We have used python3 for implementation of Bloom Filter
+	--bitarray
+	--mmh3
+	--numpy
+	--_pickle
+	--argparse
+	--pandas
+
+	Plots
+	--seaborn
+	--matplotlib
+
+First execute run_bf.sh, so that appropriate alias is set
+
+To execute BloomFilter use bf while for executing BlockedBloomFilter use bbf, and then pass accordingly the parameters

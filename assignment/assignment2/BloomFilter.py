@@ -65,7 +65,7 @@ class BloomFilter(object):
 				for key in f.readlines():
 					self.add(key.strip())
 		else:
-			sys.exit("File does not exist")
+			sys.exit(file + "File does not exist")
 
 	def query(self, key):
 		k = self.get_hash_counts()
