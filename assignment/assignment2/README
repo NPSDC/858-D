@@ -1,4 +1,7 @@
-We have used python3 for implementation of Bloom Filter
+BloomFilter contains implementation of Basic Bloom Filter
+BlockedBloomFilter contains implementation of Blocked Bloom Filter
+
+We have used python3 for implementation of Bloom Filter. Following are the libraries that are required for code execution.
 	--bitarray
 	--mmh3
 	--numpy
